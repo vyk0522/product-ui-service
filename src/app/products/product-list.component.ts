@@ -1,17 +1,33 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
+import { Product } from "./product";
 
 @Component({
     selector: 'ps-product',
-    templateUrl: './product-list.component.html'
+    templateUrl: './product-list.component.html',
+    styleUrls: ['./product-list.component.css']
 })
-export class ProductListComponent{
+export class ProductListComponent implements OnInit{
     title: string = 'Product List';
     imageWidth = 50;
     imageMargin = 2;
     showImage = false;
-    filterStr = 'cart';
 
-    products: any[] = 
+    private _listFilter: string = ''; // Private variables starts with _
+    filteredProducts: Product[] = [];
+
+    // Getter
+    get listFilter(): string{
+      return this._listFilter;
+    }
+
+    // Setter
+    set listFilter(value: string){
+      this._listFilter = value;
+      console.log('In setter value: ' + value)
+      this.filteredProducts = this.filterProducts(value);
+    }
+
+    products: Product[] = 
     [
         {
         "productId": 1,
@@ -38,6 +54,19 @@ export class ProductListComponent{
     // Function
     toggleImage(): void {
         this.showImage = !this.showImage;
+    }
+
+    ngOnInit(): void {
+      console.log("In onInit");
+      this.listFilter = 'cart';
+    }
+
+    filterProducts(value: string): Product[] {
+      return this.products.filter(e => e.productName.toLocaleLowerCase().includes(value.toLocaleLowerCase()));
+    }
+
+    onRatingClicked(message: string): void {
+      this.title = 'Product List: ' + message;
     }
 
 }
