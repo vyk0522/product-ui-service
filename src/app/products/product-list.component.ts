@@ -1,16 +1,21 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Subscription } from "rxjs";
 import { Product } from "./product";
+import { ProductService } from "./product.service";
 
 @Component({
-    selector: 'ps-product',
+    // selector: 'ps-product',  // No need as we are using routes
     templateUrl: './product-list.component.html',
     styleUrls: ['./product-list.component.css']
 })
-export class ProductListComponent implements OnInit{
+export class ProductListComponent implements OnInit, OnDestroy{
     title: string = 'Product List';
     imageWidth = 50;
     imageMargin = 2;
     showImage = false;
+    errorMessage = '';
+    // sub: Subscription | undefined;
+    sub!: Subscription;  // We will assign it some time later
 
     private _listFilter: string = ''; // Private variables starts with _
     filteredProducts: Product[] = [];
@@ -27,29 +32,12 @@ export class ProductListComponent implements OnInit{
       this.filteredProducts = this.filterProducts(value);
     }
 
-    products: Product[] = 
-    [
-        {
-        "productId": 1,
-        "productName": "Leaf Rake",
-        "productCode": "GDN-0011",
-        "releaseDate": "March 19, 2021",
-        "description": "Leaf rake with 48-inch wooden handle.",
-        "price": 19.95,
-        "starRating": 3.2,
-        "imageUrl": "assets/images/leaf_rake.png"
-      },
-      {
-        "productId": 2,
-        "productName": "Garden Cart",
-        "productCode": "GDN-0023",
-        "releaseDate": "March 18, 2021",
-        "description": "15 gallon capacity rolling garden cart",
-        "price": 32.99,
-        "starRating": 4.2,
-        "imageUrl": "assets/images/garden_cart.png"
-      }
-    ];
+    // Dependency Injection
+    constructor(private productService: ProductService){
+
+    }
+
+    products: Product[] = [];
 
     // Function
     toggleImage(): void {
@@ -57,8 +45,21 @@ export class ProductListComponent implements OnInit{
     }
 
     ngOnInit(): void {
-      console.log("In onInit");
-      this.listFilter = 'cart';
+      this.sub = this.productService
+      .getProducts()
+      .subscribe({
+        next: products => {
+          this.products = products;
+          this.filteredProducts = this.products;
+        },
+        error: error => this.errorMessage = error
+      })
+
+      //this.listFilter = 'cart';
+    }
+
+    ngOnDestroy(): void {
+      this.sub.unsubscribe;
     }
 
     filterProducts(value: string): Product[] {

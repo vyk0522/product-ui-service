@@ -43,7 +43,9 @@
                                  [style.width.px]='imageWidth'
                                  [style.margin.px]='imageMargin'>
                         </td>
-                        <td>{{ product.productName }}</td>
+                        <a [routerLink]="['/products', product.productId]">
+                            {{ product.productName }}
+                          </a>
                         <td>{{ product.productCode | lowercase | convertToSpaces:'-' }}</td>
                         <td>{{ product.releaseDate }}</td>
                         <td>{{ product.price | currency:'USD':'symbol':'1.2-2' }}</td>
@@ -54,4 +56,8 @@
             </table>
         </div>
     </div>
+</div>
+<div *ngIf='errorMessage'
+     class='alert alert-danger'>
+  Error: {{ errorMessage }}
 </div>
